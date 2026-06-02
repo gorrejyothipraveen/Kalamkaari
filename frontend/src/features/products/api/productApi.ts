@@ -50,6 +50,10 @@ async function updateProduct(id: string, payload: UpdateProductPayload): Promise
   return data;
 }
 
+async function deleteProduct(id: string): Promise<void> {
+  await axios.delete(`${BASE}/${id}`);
+}
+
 export function useProducts() {
   return useQuery({ queryKey: ["products"], queryFn: fetchProducts });
 }
@@ -79,5 +83,13 @@ export function useUpdateProduct() {
       qc.invalidateQueries({ queryKey: ["products"] });
       qc.invalidateQueries({ queryKey: ["products", id] });
     },
+  });
+}
+
+export function useDeleteProduct() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: deleteProduct,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["products"] }),
   });
 }

@@ -17,7 +17,10 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -195,6 +198,26 @@ class ProductControllerTest {
         mockMvc.perform(put("/api/admin/products/nonexistent")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    // ── DELETE /api/admin/products/{id} ───────────────────────────────────────
+
+    @Test
+    void deleteProduct_found_returns204() throws Exception {
+        doNothing().when(productService).deleteProduct("abc123");
+
+        mockMvc.perform(delete("/api/admin/products/abc123"))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void deleteProduct_notFound_returns404() throws Exception {
+        doThrow(new ProductNotFoundException("nonexistent"))
+                .when(productService).deleteProduct("nonexistent");
+
+        mockMvc.perform(delete("/api/admin/products/nonexistent"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").exists());
     }

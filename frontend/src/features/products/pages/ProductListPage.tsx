@@ -1,8 +1,20 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { PlusCircle, Pencil } from "lucide-react";
+import { PlusCircle, Pencil, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useProducts } from "../api/productApi";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useProducts, useDeleteProduct } from "../api/productApi";
 
 function formatPrice(paise: number) {
   return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(paise / 100);
@@ -10,6 +22,24 @@ function formatPrice(paise: number) {
 
 export function ProductListPage() {
   const { data: products, isLoading, isError } = useProducts();
+  const { mutate: deleteProduct, isPending: isDeleting } = useDeleteProduct();
+
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const deletingProduct = products?.find((p) => p.id === deletingId);
+
+  function handleDeleteConfirm() {
+    if (!deletingId) return;
+    deleteProduct(deletingId, {
+      onSuccess: () => {
+        toast.success(`"${deletingProduct?.name}" deleted`);
+        setDeletingId(null);
+      },
+      onError: () => {
+        toast.error("Failed to delete product. Please try again.");
+        setDeletingId(null);
+      },
+    });
+  }
 
   return (
     <div className="py-8 px-4 max-w-5xl mx-auto">
@@ -59,12 +89,23 @@ export function ProductListPage() {
                     {new Date(p.createdAt).toLocaleDateString("en-IN")}
                   </td>
                   <td className="px-4 py-3">
-                    <Button asChild variant="ghost" size="sm">
-                      <Link to={`/admin/products/${p.id}`}>
-                        <Pencil className="h-3.5 w-3.5 mr-1" />
-                        Edit
-                      </Link>
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      <Button asChild variant="ghost" size="sm">
+                        <Link to={`/admin/products/${p.id}`}>
+                          <Pencil className="h-3.5 w-3.5 mr-1" />
+                          Edit
+                        </Link>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => setDeletingId(p.id)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5 mr-1" />
+                        Delete
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -72,6 +113,25 @@ export function ProductListPage() {
           </table>
         </div>
       )}
+
+      {/* Single confirmation dialog, controlled by deletingId */}
+      <AlertDialog open={!!deletingId} onOpenChange={(open) => !open && setDeletingId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete product?</AlertDialogTitle>
+            <AlertDialogDescription>
+              <strong>{deletingProduct?.name}</strong> will be permanently removed from the catalog.
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm} disabled={isDeleting}>
+              {isDeleting ? "Deleting…" : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

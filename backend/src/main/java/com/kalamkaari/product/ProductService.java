@@ -51,4 +51,11 @@ public class ProductService {
 
         return ProductResponse.from(productRepository.save(product));
     }
+
+    public void deleteProduct(String id) {
+        if (!productRepository.existsById(id)) {
+            throw new ProductNotFoundException(id);
+        }
+        productRepository.deleteById(id);
+    }
 }
