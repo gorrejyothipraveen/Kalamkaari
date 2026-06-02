@@ -1,0 +1,34 @@
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: kalamkaari-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: kalamkaari
+
+  backend:
+    build: ./backend
+    container_name: kalamkaari-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/kalamkaari
+    depends_on:
+      - mongodb
+
+  frontend:
+    build: ./frontend
+    container_name: kalamkaari-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  mongodb_data:

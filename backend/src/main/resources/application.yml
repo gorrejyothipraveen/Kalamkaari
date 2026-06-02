@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: kalamkaari
+  data:
+    mongodb:
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017/kalamkaari}
+
+server:
+  port: 8080
