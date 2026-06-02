@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useProducts } from "../api/productApi";
@@ -46,6 +46,7 @@ export function ProductListPage() {
                 <th className="px-4 py-3 text-left font-medium">Price</th>
                 <th className="px-4 py-3 text-left font-medium">Category</th>
                 <th className="px-4 py-3 text-left font-medium">Created</th>
+                <th className="px-4 py-3 text-left font-medium">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -56,6 +57,14 @@ export function ProductListPage() {
                   <td className="px-4 py-3 text-muted-foreground">{p.categoryId ?? "—"}</td>
                   <td className="px-4 py-3 text-muted-foreground">
                     {new Date(p.createdAt).toLocaleDateString("en-IN")}
+                  </td>
+                  <td className="px-4 py-3">
+                    <Button asChild variant="ghost" size="sm">
+                      <Link to={`/admin/products/${p.id}`}>
+                        <Pencil className="h-3.5 w-3.5 mr-1" />
+                        Edit
+                      </Link>
+                    </Button>
                   </td>
                 </tr>
               ))}

@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { ProductListPage } from "@/features/products/pages/ProductListPage";
 import { CreateProductPage } from "@/features/products/pages/CreateProductPage";
+import { EditProductPage } from "@/features/products/pages/EditProductPage";
 
 export const router = createBrowserRouter([
   {
@@ -15,6 +16,7 @@ export const router = createBrowserRouter([
       { index: true, element: <Navigate to="/admin/products" replace /> },
       { path: "products", element: <ProductListPage /> },
       { path: "products/new", element: <CreateProductPage /> },
+      { path: "products/:id", element: <EditProductPage /> },
     ],
   },
 ]);

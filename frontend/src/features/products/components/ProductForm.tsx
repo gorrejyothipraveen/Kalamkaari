@@ -22,14 +22,24 @@ export type ProductFormValues = z.infer<typeof schema>;
 interface ProductFormProps {
   onSubmit: (values: ProductFormValues) => void;
   isLoading: boolean;
+  defaultValues?: Partial<ProductFormValues>;
+  submitLabel?: string;
 }
 
-export function ProductForm({ onSubmit, isLoading }: ProductFormProps) {
+export function ProductForm({
+  onSubmit,
+  isLoading,
+  defaultValues,
+  submitLabel = "Create Product",
+}: ProductFormProps) {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<ProductFormValues>({ resolver: zodResolver(schema) });
+  } = useForm<ProductFormValues>({
+    resolver: zodResolver(schema),
+    defaultValues,
+  });
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -61,14 +71,26 @@ export function ProductForm({ onSubmit, isLoading }: ProductFormProps) {
         <Label htmlFor="price">
           Price (₹) <span className="text-destructive">*</span>
         </Label>
-        <Input id="price" type="number" min="0.01" step="0.01" placeholder="e.g. 2500" {...register("price")} />
+        <Input
+          id="price"
+          type="number"
+          min="0.01"
+          step="0.01"
+          placeholder="e.g. 2500"
+          {...register("price")}
+        />
         {errors.price && <p className="text-xs text-destructive">{errors.price.message}</p>}
       </div>
 
       {/* Image URL */}
       <div className="space-y-1.5">
         <Label htmlFor="imageUrl">Image URL</Label>
-        <Input id="imageUrl" type="url" placeholder="https://example.com/product.jpg" {...register("imageUrl")} />
+        <Input
+          id="imageUrl"
+          type="url"
+          placeholder="https://example.com/product.jpg"
+          {...register("imageUrl")}
+        />
         {errors.imageUrl && <p className="text-xs text-destructive">{errors.imageUrl.message}</p>}
       </div>
 
@@ -79,7 +101,7 @@ export function ProductForm({ onSubmit, isLoading }: ProductFormProps) {
       </div>
 
       <Button type="submit" disabled={isLoading} className="w-full">
-        {isLoading ? "Saving…" : "Create Product"}
+        {isLoading ? "Saving…" : submitLabel}
       </Button>
     </form>
   );

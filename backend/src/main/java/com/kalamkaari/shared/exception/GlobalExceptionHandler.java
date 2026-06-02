@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Collections;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -24,6 +25,15 @@ public class GlobalExceptionHandler {
         return ApiError.builder()
                 .message("Validation failed")
                 .errors(errors)
+                .build();
+    }
+
+    @ExceptionHandler(ProductNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiError handleProductNotFound(ProductNotFoundException ex) {
+        return ApiError.builder()
+                .message(ex.getMessage())
+                .errors(Collections.emptyMap())
                 .build();
     }
 }

@@ -3,6 +3,8 @@ package com.kalamkaari.product;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kalamkaari.product.dto.CreateProductRequest;
 import com.kalamkaari.product.dto.ProductResponse;
+import com.kalamkaari.product.dto.UpdateProductRequest;
+import com.kalamkaari.shared.exception.ProductNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -14,9 +16,11 @@ import java.time.Instant;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -31,6 +35,8 @@ class ProductControllerTest {
 
     @MockitoBean
     private ProductService productService;
+
+    // ── POST /api/admin/products ──────────────────────────────────────────────
 
     @Test
     void createProduct_validRequest_returns201() throws Exception {
@@ -97,6 +103,8 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.errors.price").exists());
     }
 
+    // ── GET /api/admin/products ───────────────────────────────────────────────
+
     @Test
     void getAllProducts_returnsEmptyList() throws Exception {
         when(productService.getAllProducts()).thenReturn(List.of());
@@ -104,5 +112,90 @@ class ProductControllerTest {
         mockMvc.perform(get("/api/admin/products"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray());
+    }
+
+    // ── GET /api/admin/products/{id} ──────────────────────────────────────────
+
+    @Test
+    void getProductById_found_returns200() throws Exception {
+        ProductResponse response = ProductResponse.builder()
+                .id("abc123")
+                .name("Kalamkaari Saree")
+                .price(250000L)
+                .imageUrls(List.of())
+                .createdAt(Instant.now())
+                .build();
+
+        when(productService.getProductById("abc123")).thenReturn(response);
+
+        mockMvc.perform(get("/api/admin/products/abc123"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("abc123"))
+                .andExpect(jsonPath("$.name").value("Kalamkaari Saree"));
+    }
+
+    @Test
+    void getProductById_notFound_returns404() throws Exception {
+        when(productService.getProductById("nonexistent"))
+                .thenThrow(new ProductNotFoundException("nonexistent"));
+
+        mockMvc.perform(get("/api/admin/products/nonexistent"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    // ── PUT /api/admin/products/{id} ──────────────────────────────────────────
+
+    @Test
+    void updateProduct_validRequest_returns200() throws Exception {
+        UpdateProductRequest request = new UpdateProductRequest();
+        request.setName("Updated Saree");
+        request.setPrice(300000L);
+
+        ProductResponse response = ProductResponse.builder()
+                .id("abc123")
+                .name("Updated Saree")
+                .price(300000L)
+                .imageUrls(List.of())
+                .createdAt(Instant.now())
+                .updatedAt(Instant.now())
+                .build();
+
+        when(productService.updateProduct(eq("abc123"), any())).thenReturn(response);
+
+        mockMvc.perform(put("/api/admin/products/abc123")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Updated Saree"))
+                .andExpect(jsonPath("$.price").value(300000));
+    }
+
+    @Test
+    void updateProduct_missingName_returns400() throws Exception {
+        UpdateProductRequest request = new UpdateProductRequest();
+        request.setPrice(300000L);
+
+        mockMvc.perform(put("/api/admin/products/abc123")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.name").exists());
+    }
+
+    @Test
+    void updateProduct_notFound_returns404() throws Exception {
+        UpdateProductRequest request = new UpdateProductRequest();
+        request.setName("Updated Saree");
+        request.setPrice(300000L);
+
+        when(productService.updateProduct(eq("nonexistent"), any()))
+                .thenThrow(new ProductNotFoundException("nonexistent"));
+
+        mockMvc.perform(put("/api/admin/products/nonexistent")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").exists());
     }
 }
