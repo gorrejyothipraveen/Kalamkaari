@@ -6,6 +6,8 @@ import com.kalamkaari.product.dto.UpdateProductRequest;
 import com.kalamkaari.shared.exception.InsufficientStockException;
 import com.kalamkaari.shared.exception.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +32,11 @@ public class ProductService {
                 .build();
 
         return ProductResponse.from(productRepository.save(product));
+    }
+
+    public Page<ProductResponse> getAvailableProducts(Pageable pageable) {
+        return productRepository.findByStockQuantityGreaterThan(0, pageable)
+                .map(ProductResponse::from);
     }
 
     public List<ProductResponse> getAllProducts(String sort, String filter) {

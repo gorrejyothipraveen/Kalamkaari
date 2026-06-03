@@ -5,6 +5,7 @@ import { CreateProductPage } from "@/features/products/pages/CreateProductPage";
 import { EditProductPage } from "@/features/products/pages/EditProductPage";
 import { CategoryListPage } from "@/features/categories/pages/CategoryListPage";
 import { InventoryPage } from "@/features/inventory/pages/InventoryPage";
+import { CatalogPage } from "@/features/catalog/pages/CatalogPage";
 
 export const router = createBrowserRouter([
   {
@@ -22,5 +23,9 @@ export const router = createBrowserRouter([
       { path: "categories",    element: <CategoryListPage /> },
       { path: "inventory",     element: <InventoryPage /> },
     ],
+  },
+  {
+    path: "/catalog",
+    element: <CatalogPage />,
   },
 ]);
