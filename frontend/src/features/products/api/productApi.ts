@@ -31,10 +31,15 @@ export interface UpdateProductPayload {
   stockQuantity?: number;
 }
 
+export interface ProductQueryParams {
+  sort?: "stock_asc" | "stock_desc";
+  filter?: "out_of_stock" | "low_stock";
+}
+
 const BASE = "/api/admin/products";
 
-async function fetchProducts(): Promise<ProductResponse[]> {
-  const { data } = await axios.get<ProductResponse[]>(BASE);
+async function fetchProducts(params?: ProductQueryParams): Promise<ProductResponse[]> {
+  const { data } = await axios.get<ProductResponse[]>(BASE, { params });
   return data;
 }
 
@@ -62,8 +67,22 @@ async function deleteProduct(id: string): Promise<void> {
   await axios.delete(`${BASE}/${id}`);
 }
 
-export function useProducts() {
-  return useQuery({ queryKey: ["products"], queryFn: fetchProducts });
+export function useProducts(params?: ProductQueryParams) {
+  return useQuery({
+    queryKey: params ? ["products", params] : ["products"],
+    queryFn: () => fetchProducts(params),
+  });
+}
+
+// Inventory-specific hook: always fetches fresh data (staleTime: 0) and
+// re-fetches whenever the window regains focus (supports AC #4 real-time intent)
+export function useInventory(params?: ProductQueryParams) {
+  return useQuery({
+    queryKey: params ? ["products", params] : ["products"],
+    queryFn: () => fetchProducts(params),
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+  });
 }
 
 export function useProductById(id: string) {

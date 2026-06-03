@@ -114,12 +114,55 @@ class ProductControllerTest {
     // ── GET /api/admin/products ───────────────────────────────────────────────
 
     @Test
-    void getAllProducts_returnsEmptyList() throws Exception {
-        when(productService.getAllProducts()).thenReturn(List.of());
+    void getAllProducts_noParams_returnsAllProducts() throws Exception {
+        when(productService.getAllProducts(any(), any())).thenReturn(List.of());
 
         mockMvc.perform(get("/api/admin/products"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    void getAllProducts_sortStockAsc_passesParamToService() throws Exception {
+        ProductResponse p1 = ProductResponse.builder().id("a").name("A").price(100L)
+                .stockQuantity(2).imageUrls(List.of()).categoryIds(List.of())
+                .createdAt(Instant.now()).build();
+        ProductResponse p2 = ProductResponse.builder().id("b").name("B").price(200L)
+                .stockQuantity(10).imageUrls(List.of()).categoryIds(List.of())
+                .createdAt(Instant.now()).build();
+
+        when(productService.getAllProducts("stock_asc", null)).thenReturn(List.of(p1, p2));
+
+        mockMvc.perform(get("/api/admin/products?sort=stock_asc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].stockQuantity").value(2))
+                .andExpect(jsonPath("$[1].stockQuantity").value(10));
+    }
+
+    @Test
+    void getAllProducts_filterOutOfStock_returnsZeroStockProducts() throws Exception {
+        ProductResponse oos = ProductResponse.builder().id("c").name("C").price(150L)
+                .stockQuantity(0).imageUrls(List.of()).categoryIds(List.of())
+                .createdAt(Instant.now()).build();
+
+        when(productService.getAllProducts(null, "out_of_stock")).thenReturn(List.of(oos));
+
+        mockMvc.perform(get("/api/admin/products?filter=out_of_stock"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].stockQuantity").value(0));
+    }
+
+    @Test
+    void getAllProducts_filterLowStock_returnsLowStockProducts() throws Exception {
+        ProductResponse low = ProductResponse.builder().id("d").name("D").price(200L)
+                .stockQuantity(3).imageUrls(List.of()).categoryIds(List.of())
+                .createdAt(Instant.now()).build();
+
+        when(productService.getAllProducts(null, "low_stock")).thenReturn(List.of(low));
+
+        mockMvc.perform(get("/api/admin/products?filter=low_stock"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].stockQuantity").value(3));
     }
 
     // ── GET /api/admin/products/{id} ──────────────────────────────────────────

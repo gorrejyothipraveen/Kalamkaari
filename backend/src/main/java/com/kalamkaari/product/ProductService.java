@@ -6,6 +6,7 @@ import com.kalamkaari.product.dto.UpdateProductRequest;
 import com.kalamkaari.shared.exception.InsufficientStockException;
 import com.kalamkaari.shared.exception.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,6 +14,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ProductService {
+
+    static final int LOW_STOCK_THRESHOLD = 5;
 
     private final ProductRepository productRepository;
 
@@ -29,10 +32,16 @@ public class ProductService {
         return ProductResponse.from(productRepository.save(product));
     }
 
-    public List<ProductResponse> getAllProducts() {
-        return productRepository.findAll().stream()
-                .map(ProductResponse::from)
-                .toList();
+    public List<ProductResponse> getAllProducts(String sort, String filter) {
+        Sort sortOrder = buildSort(sort);
+
+        List<Product> products = switch (filter != null ? filter : "") {
+            case "out_of_stock" -> productRepository.findByStockQuantity(0, sortOrder);
+            case "low_stock"    -> productRepository.findByStockQuantityBetween(1, LOW_STOCK_THRESHOLD, sortOrder);
+            default             -> productRepository.findAll(sortOrder);
+        };
+
+        return products.stream().map(ProductResponse::from).toList();
     }
 
     public ProductResponse getProductById(String id) {
@@ -78,5 +87,11 @@ public class ProductService {
             throw new ProductNotFoundException(id);
         }
         productRepository.deleteById(id);
+    }
+
+    private Sort buildSort(String sort) {
+        if ("stock_asc".equals(sort))  return Sort.by(Sort.Direction.ASC, "stockQuantity");
+        if ("stock_desc".equals(sort)) return Sort.by(Sort.Direction.DESC, "stockQuantity");
+        return Sort.unsorted();
     }
 }
