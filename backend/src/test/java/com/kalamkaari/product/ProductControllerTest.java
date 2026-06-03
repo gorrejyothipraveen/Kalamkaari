@@ -355,4 +355,46 @@ class ProductControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").exists());
     }
+
+    // ── available flag (US-033) ───────────────────────────────────────────────
+
+    @Test
+    void getProductById_inStock_availableIsTrue() throws Exception {
+        ProductResponse response = ProductResponse.builder()
+                .id("abc123")
+                .name("Saree")
+                .price(100L)
+                .stockQuantity(10)
+                .available(true)
+                .imageUrls(List.of())
+                .categoryIds(List.of())
+                .createdAt(Instant.now())
+                .build();
+
+        when(productService.getProductById("abc123")).thenReturn(response);
+
+        mockMvc.perform(get("/api/admin/products/abc123"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.available").value(true));
+    }
+
+    @Test
+    void getProductById_outOfStock_availableIsFalse() throws Exception {
+        ProductResponse response = ProductResponse.builder()
+                .id("xyz999")
+                .name("Sold Out Item")
+                .price(100L)
+                .stockQuantity(0)
+                .available(false)
+                .imageUrls(List.of())
+                .categoryIds(List.of())
+                .createdAt(Instant.now())
+                .build();
+
+        when(productService.getProductById("xyz999")).thenReturn(response);
+
+        mockMvc.perform(get("/api/admin/products/xyz999"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.available").value(false));
+    }
 }

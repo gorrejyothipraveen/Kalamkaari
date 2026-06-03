@@ -9,6 +9,7 @@ export interface ProductResponse {
   imageUrls: string[];
   categoryIds: string[];
   stockQuantity: number;
+  available: boolean;
   createdAt: string;
   updatedAt: string;
 }
