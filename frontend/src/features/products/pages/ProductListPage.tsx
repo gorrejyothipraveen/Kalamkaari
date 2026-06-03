@@ -85,7 +85,13 @@ export function ProductListPage() {
                 <tr key={p.id} className="hover:bg-muted/50 transition-colors">
                   <td className="px-4 py-3 font-medium">{p.name}</td>
                   <td className="px-4 py-3">{formatPrice(p.price)}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{p.categoryId ?? "—"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">
+                    {p.categoryIds.length === 0
+                      ? "—"
+                      : p.categoryIds.length === 1
+                        ? p.categoryIds[0]
+                        : `${p.categoryIds[0]} +${p.categoryIds.length - 1}`}
+                  </td>
                   <td className="px-4 py-3 text-muted-foreground">
                     {new Date(p.createdAt).toLocaleDateString("en-IN")}
                   </td>

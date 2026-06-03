@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import type { CategoryResponse } from "@/features/categories/api/categoryApi";
 
 const schema = z.object({
   name: z.string().min(1, "Product name is required").max(200),
@@ -14,7 +15,7 @@ const schema = z.object({
     .min(1, "Price is required")
     .refine((v) => !isNaN(Number(v)) && Number(v) > 0, "Price must be greater than zero"),
   imageUrl: z.string().url("Must be a valid URL").or(z.literal("")).optional(),
-  categoryId: z.string().optional(),
+  categoryIds: z.array(z.string()).optional(),
 });
 
 export type ProductFormValues = z.infer<typeof schema>;
@@ -24,6 +25,7 @@ interface ProductFormProps {
   isLoading: boolean;
   defaultValues?: Partial<ProductFormValues>;
   submitLabel?: string;
+  categories?: CategoryResponse[];
 }
 
 export function ProductForm({
@@ -31,6 +33,7 @@ export function ProductForm({
   isLoading,
   defaultValues,
   submitLabel = "Create Product",
+  categories = [],
 }: ProductFormProps) {
   const {
     register,
@@ -94,10 +97,35 @@ export function ProductForm({
         {errors.imageUrl && <p className="text-xs text-destructive">{errors.imageUrl.message}</p>}
       </div>
 
-      {/* Category */}
-      <div className="space-y-1.5">
-        <Label htmlFor="categoryId">Category</Label>
-        <Input id="categoryId" placeholder="Category ID (optional)" {...register("categoryId")} />
+      {/* Categories */}
+      <div className="space-y-2">
+        <Label>Categories</Label>
+        {categories.length === 0 ? (
+          <p className="text-xs text-muted-foreground">
+            No categories yet. Create some in the{" "}
+            <a href="/admin/categories" className="underline">
+              Categories
+            </a>{" "}
+            section.
+          </p>
+        ) : (
+          <div className="grid grid-cols-2 gap-2">
+            {categories.map((cat) => (
+              <label
+                key={cat.id}
+                className="flex items-center gap-2 text-sm cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  value={cat.id}
+                  className="h-4 w-4 rounded border-input accent-primary"
+                  {...register("categoryIds")}
+                />
+                {cat.name}
+              </label>
+            ))}
+          </div>
+        )}
       </div>
 
       <Button type="submit" disabled={isLoading} className="w-full">

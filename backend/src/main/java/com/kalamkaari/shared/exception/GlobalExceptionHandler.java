@@ -36,4 +36,22 @@ public class GlobalExceptionHandler {
                 .errors(Collections.emptyMap())
                 .build();
     }
+
+    @ExceptionHandler(CategoryNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiError handleCategoryNotFound(CategoryNotFoundException ex) {
+        return ApiError.builder()
+                .message(ex.getMessage())
+                .errors(Collections.emptyMap())
+                .build();
+    }
+
+    @ExceptionHandler(CategoryInUseException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError handleCategoryInUse(CategoryInUseException ex) {
+        return ApiError.builder()
+                .message(ex.getMessage())
+                .errors(Collections.emptyMap())
+                .build();
+    }
 }

@@ -3,13 +3,14 @@ import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProductForm, type ProductFormValues } from "../components/ProductForm";
 import { useCreateProduct } from "../api/productApi";
+import { useCategories } from "@/features/categories/api/categoryApi";
 
 export function CreateProductPage() {
   const navigate = useNavigate();
   const { mutate, isPending } = useCreateProduct();
+  const { data: categories = [] } = useCategories();
 
   function handleSubmit(values: ProductFormValues) {
-    // Convert display price (₹) to storage unit (paise)
     const priceInPaise = Math.round(Number(values.price) * 100);
     const imageUrls = values.imageUrl ? [values.imageUrl] : [];
 
@@ -19,7 +20,7 @@ export function CreateProductPage() {
         description: values.description,
         price: priceInPaise,
         imageUrls,
-        categoryId: values.categoryId || undefined,
+        categoryIds: values.categoryIds ?? [],
       },
       {
         onSuccess: (product) => {
@@ -43,7 +44,11 @@ export function CreateProductPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ProductForm onSubmit={handleSubmit} isLoading={isPending} />
+          <ProductForm
+            onSubmit={handleSubmit}
+            isLoading={isPending}
+            categories={categories}
+          />
         </CardContent>
       </Card>
     </div>

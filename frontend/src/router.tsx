@@ -3,6 +3,7 @@ import { AdminLayout } from "@/components/layout/AdminLayout";
 import { ProductListPage } from "@/features/products/pages/ProductListPage";
 import { CreateProductPage } from "@/features/products/pages/CreateProductPage";
 import { EditProductPage } from "@/features/products/pages/EditProductPage";
+import { CategoryListPage } from "@/features/categories/pages/CategoryListPage";
 
 export const router = createBrowserRouter([
   {
@@ -17,6 +18,7 @@ export const router = createBrowserRouter([
       { path: "products", element: <ProductListPage /> },
       { path: "products/new", element: <CreateProductPage /> },
       { path: "products/:id", element: <EditProductPage /> },
+      { path: "categories", element: <CategoryListPage /> },
     ],
   },
 ]);

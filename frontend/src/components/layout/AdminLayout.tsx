@@ -1,9 +1,10 @@
 import { Link, NavLink, Outlet } from "react-router-dom";
-import { ShoppingBag, Package } from "lucide-react";
+import { ShoppingBag, Package, Tags } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { to: "/admin/products", label: "Products", icon: Package },
+  { to: "/admin/categories", label: "Categories", icon: Tags },
 ];
 
 export function AdminLayout() {

@@ -16,7 +16,7 @@ public class ProductResponse {
     private String description;
     private long price;
     private List<String> imageUrls;
-    private String categoryId;
+    private List<String> categoryIds;
     private Instant createdAt;
     private Instant updatedAt;
 
@@ -27,7 +27,7 @@ public class ProductResponse {
                 .description(product.getDescription())
                 .price(product.getPrice())
                 .imageUrls(product.getImageUrls())
-                .categoryId(product.getCategoryId())
+                .categoryIds(product.getCategoryIds())
                 .createdAt(product.getCreatedAt())
                 .updatedAt(product.getUpdatedAt())
                 .build();

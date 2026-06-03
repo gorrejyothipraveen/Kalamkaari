@@ -7,7 +7,7 @@ export interface ProductResponse {
   description: string | null;
   price: number;
   imageUrls: string[];
-  categoryId: string | null;
+  categoryIds: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -17,7 +17,7 @@ export interface CreateProductPayload {
   description?: string;
   price: number;
   imageUrls?: string[];
-  categoryId?: string;
+  categoryIds?: string[];
 }
 
 export interface UpdateProductPayload {
@@ -25,7 +25,7 @@ export interface UpdateProductPayload {
   description?: string;
   price: number;
   imageUrls?: string[];
-  categoryId?: string;
+  categoryIds?: string[];
 }
 
 const BASE = "/api/admin/products";

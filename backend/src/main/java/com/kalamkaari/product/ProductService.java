@@ -21,7 +21,7 @@ public class ProductService {
                 .description(request.getDescription())
                 .price(request.getPrice())
                 .imageUrls(request.getImageUrls() != null ? request.getImageUrls() : List.of())
-                .categoryId(request.getCategoryId())
+                .categoryIds(request.getCategoryIds() != null ? request.getCategoryIds() : List.of())
                 .build();
 
         return ProductResponse.from(productRepository.save(product));
@@ -47,7 +47,7 @@ public class ProductService {
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
         product.setImageUrls(request.getImageUrls() != null ? request.getImageUrls() : List.of());
-        product.setCategoryId(request.getCategoryId());
+        product.setCategoryIds(request.getCategoryIds() != null ? request.getCategoryIds() : List.of());
 
         return ProductResponse.from(productRepository.save(product));
     }

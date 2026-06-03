@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProductForm, type ProductFormValues } from "../components/ProductForm";
 import { useProductById, useUpdateProduct } from "../api/productApi";
+import { useCategories } from "@/features/categories/api/categoryApi";
 
 export function EditProductPage() {
   const { id } = useParams<{ id: string }>();
@@ -10,6 +11,7 @@ export function EditProductPage() {
 
   const { data: product, isLoading, isError } = useProductById(id!);
   const { mutate, isPending } = useUpdateProduct();
+  const { data: categories = [] } = useCategories();
 
   function handleSubmit(values: ProductFormValues) {
     const priceInPaise = Math.round(Number(values.price) * 100);
@@ -23,7 +25,7 @@ export function EditProductPage() {
           description: values.description,
           price: priceInPaise,
           imageUrls,
-          categoryId: values.categoryId || undefined,
+          categoryIds: values.categoryIds ?? [],
         },
       },
       {
@@ -59,7 +61,7 @@ export function EditProductPage() {
     description: product.description ?? "",
     price: (product.price / 100).toString(),
     imageUrl: product.imageUrls[0] ?? "",
-    categoryId: product.categoryId ?? "",
+    categoryIds: product.categoryIds ?? [],
   };
 
   return (
@@ -77,6 +79,7 @@ export function EditProductPage() {
             isLoading={isPending}
             defaultValues={defaultValues}
             submitLabel="Update Product"
+            categories={categories}
           />
         </CardContent>
       </Card>

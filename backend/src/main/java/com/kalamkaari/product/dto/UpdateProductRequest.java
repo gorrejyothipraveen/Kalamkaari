@@ -25,5 +25,5 @@ public class UpdateProductRequest {
 
     private List<String> imageUrls = new ArrayList<>();
 
-    private String categoryId;
+    private List<String> categoryIds = new ArrayList<>();
 }
