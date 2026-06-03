@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -29,9 +28,11 @@ export function ProductListPage() {
 
   function handleDeleteConfirm() {
     if (!deletingId) return;
+    // Capture name synchronously — deletingId will be cleared before onSuccess fires
+    const productName = deletingProduct?.name ?? "Product";
     deleteProduct(deletingId, {
       onSuccess: () => {
-        toast.success(`"${deletingProduct?.name}" deleted`);
+        toast.success(`"${productName}" deleted`);
         setDeletingId(null);
       },
       onError: () => {
@@ -126,9 +127,14 @@ export function ProductListPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteConfirm} disabled={isDeleting}>
+            {/* Plain Button, not AlertDialogAction — keeps dialog open during the async call */}
+            <Button
+              variant="destructive"
+              disabled={isDeleting}
+              onClick={handleDeleteConfirm}
+            >
               {isDeleting ? "Deleting…" : "Delete"}
-            </AlertDialogAction>
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
