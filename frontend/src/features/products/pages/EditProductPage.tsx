@@ -16,6 +16,7 @@ export function EditProductPage() {
   function handleSubmit(values: ProductFormValues) {
     const priceInPaise = Math.round(Number(values.price) * 100);
     const imageUrls = values.imageUrl ? [values.imageUrl] : [];
+    const stockQuantity = parseInt(values.stockQuantity, 10);
 
     mutate(
       {
@@ -26,6 +27,7 @@ export function EditProductPage() {
           price: priceInPaise,
           imageUrls,
           categoryIds: values.categoryIds ?? [],
+          stockQuantity,
         },
       },
       {
@@ -60,6 +62,7 @@ export function EditProductPage() {
     name: product.name,
     description: product.description ?? "",
     price: (product.price / 100).toString(),
+    stockQuantity: product.stockQuantity.toString(),
     imageUrl: product.imageUrls[0] ?? "",
     categoryIds: product.categoryIds ?? [],
   };

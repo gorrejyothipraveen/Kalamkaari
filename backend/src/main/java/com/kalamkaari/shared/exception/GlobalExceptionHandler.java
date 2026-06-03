@@ -54,4 +54,13 @@ public class GlobalExceptionHandler {
                 .errors(Collections.emptyMap())
                 .build();
     }
+
+    @ExceptionHandler(InsufficientStockException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError handleInsufficientStock(InsufficientStockException ex) {
+        return ApiError.builder()
+                .message(ex.getMessage())
+                .errors(Collections.emptyMap())
+                .build();
+    }
 }

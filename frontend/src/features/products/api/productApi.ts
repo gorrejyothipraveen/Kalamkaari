@@ -8,6 +8,7 @@ export interface ProductResponse {
   price: number;
   imageUrls: string[];
   categoryIds: string[];
+  stockQuantity: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -18,6 +19,7 @@ export interface CreateProductPayload {
   price: number;
   imageUrls?: string[];
   categoryIds?: string[];
+  stockQuantity?: number;
 }
 
 export interface UpdateProductPayload {
@@ -26,6 +28,7 @@ export interface UpdateProductPayload {
   price: number;
   imageUrls?: string[];
   categoryIds?: string[];
+  stockQuantity?: number;
 }
 
 const BASE = "/api/admin/products";
@@ -47,6 +50,11 @@ async function createProduct(payload: CreateProductPayload): Promise<ProductResp
 
 async function updateProduct(id: string, payload: UpdateProductPayload): Promise<ProductResponse> {
   const { data } = await axios.put<ProductResponse>(`${BASE}/${id}`, payload);
+  return data;
+}
+
+async function updateStock(id: string, quantity: number): Promise<ProductResponse> {
+  const { data } = await axios.patch<ProductResponse>(`${BASE}/${id}/stock`, { quantity });
   return data;
 }
 
@@ -79,6 +87,17 @@ export function useUpdateProduct() {
   return useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: UpdateProductPayload }) =>
       updateProduct(id, payload),
+    onSuccess: (_data, { id }) => {
+      qc.invalidateQueries({ queryKey: ["products"] });
+      qc.invalidateQueries({ queryKey: ["products", id] });
+    },
+  });
+}
+
+export function useUpdateStock() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, quantity }: { id: string; quantity: number }) => updateStock(id, quantity),
     onSuccess: (_data, { id }) => {
       qc.invalidateQueries({ queryKey: ["products"] });
       qc.invalidateQueries({ queryKey: ["products", id] });

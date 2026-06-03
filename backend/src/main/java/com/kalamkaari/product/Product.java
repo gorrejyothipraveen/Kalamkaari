@@ -35,6 +35,8 @@ public class Product {
     @Builder.Default
     private List<String> categoryIds = new ArrayList<>();
 
+    private int stockQuantity;
+
     @CreatedDate
     private Instant createdAt;
 

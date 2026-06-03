@@ -13,6 +13,7 @@ export function CreateProductPage() {
   function handleSubmit(values: ProductFormValues) {
     const priceInPaise = Math.round(Number(values.price) * 100);
     const imageUrls = values.imageUrl ? [values.imageUrl] : [];
+    const stockQuantity = parseInt(values.stockQuantity, 10);
 
     mutate(
       {
@@ -21,6 +22,7 @@ export function CreateProductPage() {
         price: priceInPaise,
         imageUrls,
         categoryIds: values.categoryIds ?? [],
+        stockQuantity,
       },
       {
         onSuccess: (product) => {
@@ -48,6 +50,7 @@ export function CreateProductPage() {
             onSubmit={handleSubmit}
             isLoading={isPending}
             categories={categories}
+            defaultValues={{ stockQuantity: "0" }}
           />
         </CardContent>
       </Card>

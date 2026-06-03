@@ -75,6 +75,7 @@ export function ProductListPage() {
               <tr>
                 <th className="px-4 py-3 text-left font-medium">Name</th>
                 <th className="px-4 py-3 text-left font-medium">Price</th>
+                <th className="px-4 py-3 text-left font-medium">Stock</th>
                 <th className="px-4 py-3 text-left font-medium">Category</th>
                 <th className="px-4 py-3 text-left font-medium">Created</th>
                 <th className="px-4 py-3 text-left font-medium">Actions</th>
@@ -85,6 +86,13 @@ export function ProductListPage() {
                 <tr key={p.id} className="hover:bg-muted/50 transition-colors">
                   <td className="px-4 py-3 font-medium">{p.name}</td>
                   <td className="px-4 py-3">{formatPrice(p.price)}</td>
+                  <td className="px-4 py-3">
+                    {p.stockQuantity === 0 ? (
+                      <span className="text-destructive font-medium">Out of stock</span>
+                    ) : (
+                      <span>{p.stockQuantity} in stock</span>
+                    )}
+                  </td>
                   <td className="px-4 py-3 text-muted-foreground">
                     {p.categoryIds.length === 0
                       ? "—"

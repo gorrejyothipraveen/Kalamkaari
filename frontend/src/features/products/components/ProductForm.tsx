@@ -14,6 +14,9 @@ const schema = z.object({
     .string()
     .min(1, "Price is required")
     .refine((v) => !isNaN(Number(v)) && Number(v) > 0, "Price must be greater than zero"),
+  stockQuantity: z
+    .string()
+    .refine((v) => /^\d+$/.test(v), "Must be 0 or a positive whole number"),
   imageUrl: z.string().url("Must be a valid URL").or(z.literal("")).optional(),
   categoryIds: z.array(z.string()).optional(),
 });
@@ -83,6 +86,24 @@ export function ProductForm({
           {...register("price")}
         />
         {errors.price && <p className="text-xs text-destructive">{errors.price.message}</p>}
+      </div>
+
+      {/* Stock Quantity */}
+      <div className="space-y-1.5">
+        <Label htmlFor="stockQuantity">
+          Stock Quantity <span className="text-destructive">*</span>
+        </Label>
+        <Input
+          id="stockQuantity"
+          type="number"
+          min="0"
+          step="1"
+          placeholder="e.g. 100"
+          {...register("stockQuantity")}
+        />
+        {errors.stockQuantity && (
+          <p className="text-xs text-destructive">{errors.stockQuantity.message}</p>
+        )}
       </div>
 
       {/* Image URL */}
